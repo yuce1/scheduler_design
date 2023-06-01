@@ -4,6 +4,7 @@ import os
 import sys
 import re
 import psutil
+import time
 from conf import *
 
 server_power = 0
@@ -52,9 +53,31 @@ if __name__ == "__main__":
 	print("执行前查看信息")
 	print(server_power)
 	print(server_usage)
+	i = 1
+	j = 2
 	while True:
-		read_server_power()
-		read_server_usage()
-		print("执行后查看信息")
-		print(server_power)
-		print(server_usage)
+		# read_server_power()
+		# read_server_usage()
+		# print("执行后查看信息")
+		# print(server_power)
+		# print(server_usage)
+		i+=1
+		j+=1
+		server_power = i
+		server_usage = j
+		cmd_power = "kubectl label nodes "+ node_name + " power=" + str(server_power) + " --overwrite"
+		# 执行以上命令，并且返回结果
+		textlist = os.popen(cmd_power).readlines()
+		# 异常处理,读取到的文件应该总是一行，进行基本的判断
+		for text in textlist:
+			print(text)
+
+		cmd_usage = "kubectl label nodes "+ node_name + " cpuUse=" + str(server_usage) + " --overwrite"
+		# 执行以上命令，并且返回结果
+		textlist = os.popen(cmd_usage).readlines()
+		# 异常处理,读取到的文件应该总是一行，进行基本的判断
+		for text in textlist:
+			print(text)
+
+
+		time.sleep(0.5)
