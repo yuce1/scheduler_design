@@ -56,15 +56,34 @@ def get_node_allocatable_resource(node_name):
     return usage
 
 def get_used_resources(node_name):
+	used_resources = {}
+
 	get_cpu_use = "kubectl describe node " + node_name + "| grep \"cpu \""
 	get_mem_use = "kubectl describe node " + node_name + "| grep \"memory \""
 	get_pod_num = "kubectl describe node " + node_name + "| grep \"Non-terminated Pods: \""
 	# 执行以上命令，并且返回结果
 	cpu_inf = os.popen(get_cpu_use).readlines()
+	if(len(cpu_inf) != 1):
+		print("获取cpu使用信息失败！")
+		exit(-1)
+	cpu_use = cpu_inf[0].strip().split()[1]
+	used_resources["cpu_use"] = cpu_use
+	
 	mem_inf = os.popen(get_mem_use).readlines()
+	if(len(mem_inf) != 2):
+		print("获取mem使用信息失败！")
+		exit(-1)
+	mem_use = mem_inf[1].strip().split()[1]
+	used_resources["mem_use"] = mem_use
+
 	pods_inf = os.popen(get_pod_num).readlines()
+	if(len(pods_inf) != 1):
+		print("获取运行pod个数信息失败！")
+		exit(-1)
+	pod_rum = pods_inf[0].strip().split('(')[1].split()[0]
+	used_resources["pod_rum"] = pod_rum
+
 	# 异常处理,读取到的文件应该总是一行，进行基本的判断
-	used_resources = []
 	return used_resources
 
 
@@ -102,10 +121,10 @@ if __name__ == "__main__":
             
 
 			# 获取节点的已使用资源信息
-			# used_resources = get_used_resources(node_name)
+			used_resources = get_used_resources(node_name)
 
-			# if used_resources:
-			# 	print(f"节点 {node_name} 的已使用资源信息为:")
-			# 	print(used_resources)
+			if used_resources:
+				print(f"节点 {node_name} 的已使用资源信息为:")
+				print(used_resources)
 
 			i = i+1
