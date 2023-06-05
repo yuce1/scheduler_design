@@ -89,6 +89,7 @@ def get_used_resources(node_name):
 
 if __name__ == "__main__":
 	node_list = []
+	close_node_list = []
 	get_node_cmd = "kubectl get nodes"
 	# 执行以上命令，并且返回结果
 	textlist = os.popen(get_node_cmd).readlines()
@@ -126,5 +127,12 @@ if __name__ == "__main__":
 			if used_resources:
 				print(f"节点 {node_name} 的已使用资源信息为:")
 				print(used_resources)
+				if(used_resources["cpu_use"] == "0" and used_resources["mem_use"] == "0"):
+					close_node_list.append(node_name)
 
 			i = i+1
+		
+		if(len(close_node_list) != 0):
+			print("\n以下节点上没有pod运行，需要关闭:")
+			for cn in close_node_list:
+				print(cn + " ")
