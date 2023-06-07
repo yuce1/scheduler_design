@@ -3,18 +3,19 @@
 
 import os
 import sys
+import string
 import subprocess
 import json
 import requests
 import re
 from conf import *
-import heapq
 
 
 
 class node:
 	node_name = ""
 	status = ""
+	role = ""
 	pod_num = 0
 
 
@@ -33,30 +34,60 @@ def get_run_pod_num(node_name):
 
 if __name__ == "__main__":
 	node_list = []
-	run_node_num_list = []
 	close_node_list = []
-	get_node_cmd = "kubectl get nodes"
+	get_node_cmd = "kubectl get nodes | grep \" Ready\""
 	# 执行以上命令，并且返回结果
 	textlist = os.popen(get_node_cmd).readlines()
 	# 异常处理,读取到的文件应该总是一行，进行基本的判断
-	num_node = len(textlist)-1
-	if(num_node<=0):
-		print("无可用节点！")
+	num_node = len(textlist)
+	if(num_node<=close_node_num):
+		print(f"关闭 {close_node_num} 个结点之后，集群节点将全部被关闭！")
 		sys.exit()
 	else:
-		i = 1
-		while(i<=num_node):
+		i = 0
+		mp = {}
+		
+		while(i<num_node):
 			inf_list = textlist[i].strip().split()
 			node_name = inf_list[0]
 			status = inf_list[1]
+			role = inf_list[2]
 			print(node_name)
 			print(status)
-			if(status == "Ready"):
+			print(role)
+			node_list.append(node_name)
+			if(status == "Ready" and role != "master"):
 				run_node = get_run_pod_num(node_name)
+				if(len(mp) < close_node_num):
+					mp[node_name] = run_node
+				else:
+					mp[node_name] = run_node
+					maxK = ""
+					maxV = 0
+					for key,value in mp.items():
+						if(int(value) > maxV):
+							maxV = int(value)
+							maxK = key
+					del mp[maxK]
+					print(maxK + "节点上元素较多\n")
+					node_list.remove(maxK)
 				
 			i = i+1
 
-			num = 0
-			if(len(heapq) > 0 and num < close_node_num):
-				print(heapq.heappop())
+		print(f"需要关闭的 {close_node_num} 个节点是：")
+		for key,value in mp.items():
+			print(key + " ")
+			node_list.remove(key)
+
+		# 此时任务还没有完成，开始进行迁移
+		# 此处考虑轮询
+		# mp中是要关闭的节点
+		print("目前处于可用的节点为：")
+		for nd in node_list:
+			print(nd + " ")
+		
+		for key,value in mp.items():
+			print(key + " ")
+			node_list.remove(key)
+
 		

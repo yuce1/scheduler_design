@@ -1,0 +1,1 @@
+1、我们的想法是获取每一个节点上的pod个数（不处于succeed状态，已经运行完成），pod个数最少的num个节点需要关闭，master节点（role为master不能关闭）
