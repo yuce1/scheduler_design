@@ -87,7 +87,6 @@ if __name__ == "__main__":
 			print(nd + " ")
 		
 		for key,value in mp.items():
-			print(key + " ")
-			node_list.remove(key)
+			
 
 		
