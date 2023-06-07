@@ -85,8 +85,20 @@ if __name__ == "__main__":
 		print("目前处于可用的节点为：")
 		for nd in node_list:
 			print(nd + " ")
+		can_use = len(node_list)
+		now = 0
 		
 		for key,value in mp.items():
-			
+			get_pod_cmd = "kubectl describe node " + key + " | grep \"default\""
+			# 执行以上命令，并且返回结果
+			pod_list = os.popen(get_pod_cmd).readlines()
+			# 异常处理,读取到的文件应该总是一行，进行基本的判断
+			num_node = len(pod_list)
+			if(num_node != 0):
+				for pod in pod_list:
+					print(f"{key} 节点上的pod {pod.split()[1]}需要被迁移走，应该迁移到{node_list[now%can_use]} 上")
+					now += 1
+			else:
+				print(f"{key} 节点上没有pod未完成运行")
 
 		
