@@ -49,22 +49,38 @@ def read_server_usage_old():
 		sys.stderr.write("[ERROR] 无法获取整台服务器的CPU利用率!\n")
 		exit(-1)
 
+# 获取cpu目前所处的状态
+def get_cpu_state():
+	global cpu_state
+	# 命令行中要运行的语句
+	cpu_state_cmd = "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
+	# 执行以上命令，并且返回结果
+	cpu_state = os.popen(cpu_state_cmd).readlines()[0]
+
 if __name__ == "__main__":
 	print("执行前查看信息")
 	print(server_power)
 	print(server_usage)
 	i = 1
 	j = 2
+	k = 0
+	state_list = ["ondemand", "performance", "powersave"]
 	while True:
 		# read_server_power()
 		# read_server_usage()
+		# get_cpu_state()
 		# print("执行后查看信息")
 		# print(server_power)
 		# print(server_usage)
+		# print(cpu_state)
 		i+=1
 		j+=1
+		k+=1
+		
 		server_power = i
 		server_usage = j
+		cpu_state = state_list[k%3]
+
 		cmd_power = "kubectl label nodes "+ node_name + " power=" + str(server_power) + " --overwrite"
 		# 执行以上命令，并且返回结果
 		textlist = os.popen(cmd_power).readlines()
@@ -75,6 +91,13 @@ if __name__ == "__main__":
 		cmd_usage = "kubectl label nodes "+ node_name + " cpuUse=" + str(server_usage) + " --overwrite"
 		# 执行以上命令，并且返回结果
 		textlist = os.popen(cmd_usage).readlines()
+		# 异常处理,读取到的文件应该总是一行，进行基本的判断
+		for text in textlist:
+			print(text)
+
+		cmd_state = "kubectl label nodes "+ node_name + " cpuState=" + str(cpu_state) + " --overwrite"
+		# 执行以上命令，并且返回结果
+		textlist = os.popen(cmd_state).readlines()
 		# 异常处理,读取到的文件应该总是一行，进行基本的判断
 		for text in textlist:
 			print(text)
