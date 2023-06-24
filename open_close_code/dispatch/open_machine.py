@@ -17,6 +17,16 @@ def open_new_mach():
 		print("集群没有关闭的节点，需对集群进行扩容，或者等待其他pod运行完毕，让出资源")
 	else:
 		print(f"node {textlist[0].strip().split()[0]} 需要被开启")
+		openList = []
+		openList.append(textlist[0].strip().split()[0])
+		fileName = "~/workspace/schedule/power/mac_open.json"
+		jsonObject = {
+			"powerOn": openList
+		}
+
+		file = open(fileName, "w")
+		json.dump(jsonObject, file)
+		file.close()
 
 if __name__ == "__main__":
 	get_pod_cmd = "kubectl get pods"

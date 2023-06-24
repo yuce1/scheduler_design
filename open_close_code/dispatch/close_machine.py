@@ -136,3 +136,11 @@ if __name__ == "__main__":
 			print("\n以下节点上没有pod运行，需要关闭:")
 			for cn in close_node_list:
 				print(cn + " ")
+			fileName = "~/workspace/schedule/power/mac_close.json"
+			jsonObject = {
+				"powerOff": close_node_list
+			}
+
+			file = open(fileName, "w")
+			json.dump(jsonObject, file)
+			file.close()
