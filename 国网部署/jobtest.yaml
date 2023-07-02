@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+  labels: 
+    energy-para: "0.7"
+    performance-para: "0.3"
+spec:
+  parallelism: 4
+  completions: 200
+  template:
+    metadata:
+      labels:
+        energy-para: "0.7"
+        performance-para: "0.3"
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: pi
+        image: resouer/ubuntu-bc
+        resources:
+          requests:
+            cpu: "0.5"
+            memory: "1Gi"
+        command: ["sh", "-c", "echo 'scale=5000; 4*a(1)' | bc -l "]
+      restartPolicy: Never
+  backoffLimit: 4
